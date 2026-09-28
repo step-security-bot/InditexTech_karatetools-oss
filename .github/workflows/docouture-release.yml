@@ -86,6 +86,9 @@ concurrency:
   group: docouture-release
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
   release:
     name: Cut release
@@ -122,6 +125,11 @@ jobs:
         (contains(github.event.pull_request.labels.*.name, 'skip-release') ||
           !contains(join(github.event.pull_request.labels.*.name, ', '), 'release-type')))
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
       - name: Require release branch
         # Only meaningful for a manual dispatch: someone could run this
         # workflow with a different branch selected in the "Run workflow"
